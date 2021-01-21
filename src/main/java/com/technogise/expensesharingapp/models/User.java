@@ -3,11 +3,11 @@ package com.technogise.expensesharingapp.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "users")
-public class User extends AuditClass {
+@Table(name = "users", indexes = {@Index(name = "i_phone_number_unique", columnList = "phone_number", unique = true)})
+public class User extends BasePersistenceModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -15,16 +15,15 @@ public class User extends AuditClass {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "phone_number", nullable = false, unique = true, length = 10)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
-
 
     public User() {
     }
 
-    public User(Integer id, String name, String phoneNumber) {
-        this.id = id;
+    public User(String name, String password, String phoneNumber) {
         this.name = name;
+        this.password = password;
         this.phoneNumber = phoneNumber;
     }
 
@@ -36,8 +35,12 @@ public class User extends AuditClass {
         this.password = password;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
