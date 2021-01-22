@@ -5,9 +5,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users", indexes = {@Index(name = "i_phone_number_unique", columnList = "phone_number", unique = true)})
 public class User extends BasePersistenceModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -33,14 +30,6 @@ public class User extends BasePersistenceModel {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

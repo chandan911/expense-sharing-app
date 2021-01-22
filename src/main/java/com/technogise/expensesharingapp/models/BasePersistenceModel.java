@@ -12,6 +12,10 @@ import java.util.Date;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BasePersistenceModel implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
@@ -24,12 +28,20 @@ public abstract class BasePersistenceModel implements Serializable {
     @JsonIgnore
     private Date updatedAt;
 
+    public Long getId() {
+        return id;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
 
     public Date getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setCreatedAt(Date createdAt) {
