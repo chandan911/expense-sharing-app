@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImplementation implements UserService{
@@ -32,5 +33,17 @@ public class UserServiceImplementation implements UserService{
     String securePassword = passwordEncoder.encode(originalPassword);
     user.setPassword(securePassword);
     return userRepository.save(user);
+  }
+
+  @Override
+  public Optional<User> getUserByPhoneNumber(String phoneNumber) {
+    User user = null;
+    for(User u: userRepository.findAll()){
+      if(u.getPhoneNumber().equals(phoneNumber)){
+        user = u;
+        break;
+      }
+    }
+    return Optional.ofNullable(user);
   }
 }
