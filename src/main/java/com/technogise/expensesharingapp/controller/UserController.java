@@ -1,6 +1,8 @@
 package com.technogise.expensesharingapp.controller;
 
+import com.technogise.expensesharingapp.auth.UserAuthService;
 import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.models.UserAuthRequest;
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -21,6 +24,9 @@ public class UserController {
 
   @Autowired
   private Validator validator;
+
+  @Autowired
+  private UserAuthService userAuthService;
 
   @GetMapping("/users")
   public List<User> getAllUsers() {
@@ -40,4 +46,10 @@ public class UserController {
       }
     }
   }
+
+  @PostMapping(path = "/login", consumes = "application/json", produces ="application/text")
+  public ResponseEntity<String> login(@RequestBody UserAuthRequest userAuthRequest) {
+    return userAuthService.authenticateLoginRequest(userAuthRequest);
+  }
+
 }
