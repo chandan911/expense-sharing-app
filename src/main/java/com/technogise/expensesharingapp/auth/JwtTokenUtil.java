@@ -4,7 +4,8 @@ package com.technogise.expensesharingapp.auth;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Base64;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +16,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.spec.SecretKeySpec;
 
 @Component("JwtTokenUtil")
 public class JwtTokenUtil implements Serializable {
@@ -28,8 +26,8 @@ public class JwtTokenUtil implements Serializable {
 
     private static final long JWT_TOKEN_VALIDITY = 900_000;
 
-    @Value("${jwt.secret}")
-    private static String secret;
+//    @Value("${jwt.secret}")
+    private static String secret="asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
 
     private Key getSigningKey() {
         byte[] keyBytes = this.secret.getBytes(StandardCharsets.UTF_8);
@@ -54,8 +52,10 @@ public class JwtTokenUtil implements Serializable {
     }
 
     private String doGenerateToken(Map<String, Object> claims, Long subject) {
-
-        return Jwts.builder().setClaims(claims).setSubject(subject.toString()).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject.toString())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(getSigningKey())
                 .compact();
@@ -63,16 +63,14 @@ public class JwtTokenUtil implements Serializable {
 
     public Long validateToken(String token) throws AuthFailedException {
         try {
-            String userIdFromToken = Jwts.parserBuilder()
+                String userIdFromToken = Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody().getSubject();
-            if (!isTokenExpired(token)) {
-                return Long.parseLong(userIdFromToken);
-            }
-        } catch(ExpiredJwtException | UnsupportedJwtException | MalformedJwtException |
-                IllegalArgumentException ex){
+                if(!isTokenExpired(token)) return Long.parseLong(userIdFromToken);
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
+                IllegalArgumentException ex) {
             LOGGER.error(ex.getMessage());
             throw new AuthFailedException();
         }
