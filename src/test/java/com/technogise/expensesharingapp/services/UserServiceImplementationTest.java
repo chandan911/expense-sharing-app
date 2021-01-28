@@ -21,7 +21,7 @@ public class UserServiceImplementationTest {
     private UserRepository mockUserRepository;
 
     @InjectMocks
-    private UserServiceImplementation mockUserService;
+    private UserServiceImpl mockUserService;
 
     @Test
     public void testGetUserByPhoneNumberWhenUserExist(){

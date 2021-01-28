@@ -36,3 +36,4 @@ public class UserAuthService {
         return (new ResponseEntity<String>("No Data Available, Sign up instead", HttpStatus.NOT_FOUND));
     }
 }
+
