@@ -16,4 +16,5 @@ public interface UserService {
   Optional<User> getUserByPhoneNumber(String phoneNumber);
 
   Optional<User> getUserById(Long id);
+
 }
