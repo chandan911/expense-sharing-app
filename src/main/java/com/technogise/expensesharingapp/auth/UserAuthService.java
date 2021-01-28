@@ -19,12 +19,16 @@ public class UserAuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
     public ResponseEntity<String> authenticateLoginRequest(UserAuthRequest userAuthRequest){
         Optional<User> mayBeExistingUser = userService.getUserByPhoneNumber(userAuthRequest.getPhoneNumber());
         if(mayBeExistingUser.isPresent()){
             User existingUser = mayBeExistingUser.get();
             if(passwordEncoder.matches(userAuthRequest.getPassword(),existingUser.getPassword())) {
-                return (new ResponseEntity<String>("", HttpStatus.ACCEPTED));
+                String authToken = jwtTokenUtil.generateAuthTokenFor(existingUser);
+                return (new ResponseEntity<String>(authToken, HttpStatus.ACCEPTED));
             }else {
                 return (new ResponseEntity<String>("Incorrect Password", HttpStatus.UNAUTHORIZED));
             }
