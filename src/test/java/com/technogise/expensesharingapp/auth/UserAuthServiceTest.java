@@ -23,6 +23,9 @@ public class UserAuthServiceTest {
     @Mock
     private BCryptPasswordEncoder mockPasswordEncoder;
 
+    @Mock
+    private JwtTokenUtil mockJwtTokenUtil;
+
     @InjectMocks
     private UserAuthService mockUserAuthService;
 
@@ -30,6 +33,7 @@ public class UserAuthServiceTest {
     public void testAuthenticateLoginRequestWhenEnteredPhoneNumberNotPresentInDatabase(){
         User user = new User("DemoUser","12345","9898989898");
         Mockito.when(mockUserService.getUserByPhoneNumber(user.getPhoneNumber())).thenReturn(java.util.Optional.ofNullable(null));
+        Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(user.getPassword(),mockPasswordEncoder.encode(user.getPassword())))
                 .thenReturn(true);
         ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(new UserAuthRequest(user.getPhoneNumber(), user.getPassword()));
@@ -41,9 +45,11 @@ public class UserAuthServiceTest {
         User user = new User("DemoUser","12345","9898989898");
         UserAuthRequest userAuthRequest = new UserAuthRequest(user.getPhoneNumber(),user.getPassword());
         Mockito.when(mockUserService.getUserByPhoneNumber(userAuthRequest.getPhoneNumber())).thenReturn(java.util.Optional.of(user));
+        Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(userAuthRequest.getPassword(),user.getPassword())).thenReturn(true);
         ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(userAuthRequest);
         Assertions.assertEquals(HttpStatus.ACCEPTED,loginResponse.getStatusCode());
+        Assertions.assertEquals("12345",loginResponse.getBody());
     }
 
     @Test
@@ -51,6 +57,7 @@ public class UserAuthServiceTest {
         User user = new User("DemoUser","12345","9898989898");
         UserAuthRequest userAuthRequest = new UserAuthRequest(user.getPhoneNumber(),user.getPassword());
         Mockito.when(mockUserService.getUserByPhoneNumber(userAuthRequest.getPhoneNumber())).thenReturn(java.util.Optional.of(user));
+        Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(userAuthRequest.getPassword(),user.getPassword())).thenReturn(false);
         ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(userAuthRequest);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED,loginResponse.getStatusCode());
