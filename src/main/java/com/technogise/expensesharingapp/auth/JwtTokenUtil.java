@@ -4,8 +4,6 @@ package com.technogise.expensesharingapp.auth;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +24,12 @@ public class JwtTokenUtil implements Serializable {
 
     private static final long JWT_TOKEN_VALIDITY = 900_000;
 
-//    @Value("${jwt.secret}")
     private static String secret="asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
 
     private Key getSigningKey() {
         byte[] keyBytes = this.secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-    private Object ExpiredJwtException;
-
 
     private Boolean isTokenExpired(String token) {
         final Date expiration = Jwts.parserBuilder()
