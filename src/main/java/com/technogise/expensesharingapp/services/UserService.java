@@ -14,4 +14,6 @@ public interface UserService {
   User createOrUpdate(User user);
 
   Optional<User> getUserByPhoneNumber(String phoneNumber);
+
+  Optional<User> getUserById(Long id);
 }

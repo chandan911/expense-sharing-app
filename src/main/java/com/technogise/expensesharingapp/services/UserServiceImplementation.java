@@ -46,4 +46,9 @@ public class UserServiceImplementation implements UserService{
     }
     return Optional.ofNullable(user);
   }
+
+  @Override
+  public Optional<User> getUserById(Long id) {
+    return userRepository.findById(id);
+  }
 }
