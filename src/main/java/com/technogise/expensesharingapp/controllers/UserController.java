@@ -30,6 +30,7 @@ public class UserController {
   @Autowired
   private UserAuthService userAuthService;
 
+  @CrossOrigin(origins = "*")
   @GetMapping("/users")
   public List<User> getAllUsers() {
     return userService.getAllUsers();
@@ -55,6 +56,7 @@ public class UserController {
     }
   }
 
+  @CrossOrigin(origins = "*")
   @PostMapping(path = "/login", consumes = "application/json", produces ="application/text")
   public ResponseEntity<String> login(@RequestBody UserAuthRequest userAuthRequest) {
     return userAuthService.authenticateLoginRequest(userAuthRequest);
