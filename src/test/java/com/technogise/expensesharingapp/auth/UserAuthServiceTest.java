@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles
+@ActiveProfiles("test")
 public class UserAuthServiceTest {
     @Mock
     private UserService mockUserService;
