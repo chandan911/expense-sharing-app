@@ -28,7 +28,7 @@ public class UserAuthService {
             User existingUser = mayBeExistingUser.get();
             if(passwordEncoder.matches(userAuthRequest.getPassword(),existingUser.getPassword())) {
                 String authToken = jwtTokenUtil.generateAuthTokenFor(existingUser);
-                return (new ResponseEntity<String>(authToken, HttpStatus.ACCEPTED));
+                return (new ResponseEntity<String>(authToken, HttpStatus.OK));
             }else {
                 return (new ResponseEntity<String>("Incorrect Password", HttpStatus.UNAUTHORIZED));
             }

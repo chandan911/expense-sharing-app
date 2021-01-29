@@ -48,7 +48,7 @@ public class UserAuthServiceTest {
         Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(userAuthRequest.getPassword(),user.getPassword())).thenReturn(true);
         ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(userAuthRequest);
-        Assertions.assertEquals(HttpStatus.ACCEPTED,loginResponse.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK,loginResponse.getStatusCode());
         Assertions.assertEquals("12345",loginResponse.getBody());
     }
 
