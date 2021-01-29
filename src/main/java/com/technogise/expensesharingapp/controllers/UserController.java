@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +35,7 @@ public class UserController {
     return userService.getAllUsers();
   }
 
+  @CrossOrigin(origins = "*")
   @PostMapping(path = "/users", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> createOrUpdate(@RequestBody User user) {
     if (validator.validateUserName(user.getName()) &&
