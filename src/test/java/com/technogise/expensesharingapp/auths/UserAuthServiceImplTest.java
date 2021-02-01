@@ -1,5 +1,6 @@
-package com.technogise.expensesharingapp.auth;
+package com.technogise.expensesharingapp.auths;
 
+import com.technogise.expensesharingapp.models.ActionResult;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.models.UserAuthRequest;
 import com.technogise.expensesharingapp.services.UserService;
@@ -14,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Optional;
+
 @SpringBootTest
 @ActiveProfiles("test")
-public class UserAuthServiceTest {
+public class UserAuthServiceImplTest {
     @Mock
     private UserService mockUserService;
 
@@ -27,18 +30,8 @@ public class UserAuthServiceTest {
     private JwtTokenUtil mockJwtTokenUtil;
 
     @InjectMocks
-    private UserAuthService mockUserAuthService;
+    private UserAuthServiceImpl mockUserAuthServiceImpl;
 
-    @Test
-    public void testAuthenticateLoginRequestWhenEnteredPhoneNumberNotPresentInDatabase(){
-        User user = new User("DemoUser","12345","9898989898");
-        Mockito.when(mockUserService.getUserByPhoneNumber(user.getPhoneNumber())).thenReturn(java.util.Optional.ofNullable(null));
-        Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
-        Mockito.when(mockPasswordEncoder.matches(user.getPassword(),mockPasswordEncoder.encode(user.getPassword())))
-                .thenReturn(true);
-        ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(new UserAuthRequest(user.getPhoneNumber(), user.getPassword()));
-        Assertions.assertEquals(HttpStatus.NOT_FOUND,loginResponse.getStatusCode());
-    }
 
     @Test
     public void testAuthenticateLoginRequestWithRightCredentials(){
@@ -47,9 +40,9 @@ public class UserAuthServiceTest {
         Mockito.when(mockUserService.getUserByPhoneNumber(userAuthRequest.getPhoneNumber())).thenReturn(java.util.Optional.of(user));
         Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(userAuthRequest.getPassword(),user.getPassword())).thenReturn(true);
-        ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(userAuthRequest);
-        Assertions.assertEquals(HttpStatus.OK,loginResponse.getStatusCode());
-        Assertions.assertEquals("12345",loginResponse.getBody());
+        Optional<ActionResult<String>> loginResult = mockUserAuthServiceImpl.authenticateLoginRequest(userAuthRequest);
+        Assertions.assertTrue(loginResult.get().isSuccess());
+        Assertions.assertEquals("12345",loginResult.get().getResult());
     }
 
     @Test
@@ -59,7 +52,9 @@ public class UserAuthServiceTest {
         Mockito.when(mockUserService.getUserByPhoneNumber(userAuthRequest.getPhoneNumber())).thenReturn(java.util.Optional.of(user));
         Mockito.when(mockJwtTokenUtil.generateAuthTokenFor(user)).thenReturn("12345");
         Mockito.when(mockPasswordEncoder.matches(userAuthRequest.getPassword(),user.getPassword())).thenReturn(false);
-        ResponseEntity<String> loginResponse = mockUserAuthService.authenticateLoginRequest(userAuthRequest);
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED,loginResponse.getStatusCode());
+        Optional<ActionResult<String>> loginResult = mockUserAuthServiceImpl.authenticateLoginRequest(userAuthRequest);
+        Assertions.assertFalse(loginResult.get().isSuccess());
+        Assertions.assertEquals("Invalid Credentials",loginResult.get().getErrorMessage());
     }
 }
+

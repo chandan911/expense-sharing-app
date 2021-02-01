@@ -1,6 +1,7 @@
 package com.technogise.expensesharingapp.controllers;
 
-import com.technogise.expensesharingapp.auth.UserAuthService;
+import com.technogise.expensesharingapp.auths.UserAuthService;
+import com.technogise.expensesharingapp.models.ActionResult;
 import com.technogise.expensesharingapp.models.UserAuthRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -8,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,6 +23,7 @@ import com.technogise.expensesharingapp.validators.Validator;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -161,7 +161,7 @@ public class UserControllerTest {
     void testLoginEntryPointWhenUserHaveNotRegister() throws Exception {
 
         UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898","12345");
-        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(new ResponseEntity<String>("", HttpStatus.NOT_FOUND));
+        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.empty());
 
         final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -174,20 +174,24 @@ public class UserControllerTest {
     void testLoginEntryPointWithRightCredentials() throws Exception {
 
         UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898","12345");
-        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(new ResponseEntity<String>("", HttpStatus.ACCEPTED));
+        ActionResult<String> actionResult = new ActionResult<>("AuthToken");
+        actionResult.setSuccess(true);
+        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.of(actionResult));
 
         final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
                 .content(useRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isAccepted());
+                .andExpect(status().isOk());
     }
 
     @Test
     void testLoginEntryPointWithWrongPassword() throws Exception {
 
         UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898","12345");
-        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(new ResponseEntity<String>("", HttpStatus.UNAUTHORIZED));
+        ActionResult<String> actionResult = ActionResult.error("Invalid Credentials");
+        actionResult.setSuccess(false);
+        Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.of(actionResult));
 
         final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -196,6 +200,7 @@ public class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 }
+
 
 
 

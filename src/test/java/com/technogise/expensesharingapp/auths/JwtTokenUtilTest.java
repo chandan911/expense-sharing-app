@@ -1,4 +1,4 @@
-package com.technogise.expensesharingapp.auth;
+package com.technogise.expensesharingapp.auths;
 
 import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.User;
@@ -30,3 +30,4 @@ class JwtTokenUtilTest {
         Assertions.assertEquals(id,1);
     }
 }
+

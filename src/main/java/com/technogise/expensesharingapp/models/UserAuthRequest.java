@@ -33,4 +33,3 @@ public class UserAuthRequest {
         return Objects.hash(phoneNumber, password);
     }
 }
-
