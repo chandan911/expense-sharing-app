@@ -1,30 +1,40 @@
 package com.technogise.expensesharingapp.controllers;
 
-import com.technogise.expensesharingapp.models.User;
-import com.technogise.expensesharingapp.services.UserService;
-import com.technogise.expensesharingapp.validators.Validator;
+import com.technogise.expensesharingapp.auths.UserAuthService;
+import com.technogise.expensesharingapp.models.ResultEntity;
+import com.technogise.expensesharingapp.models.UserAuthRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.services.UserService;
+import com.technogise.expensesharingapp.validators.Validator;
+import org.springframework.dao.DataIntegrityViolationException;
+
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class UserControllerTest {
+
+  @MockBean
+  private UserAuthService mockUserAuthService;
 
   @MockBean
   private UserService mockUserService;
@@ -145,5 +155,48 @@ public class UserControllerTest {
         .content(useRequestBody)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().is(409));
+  }
+
+  @Test
+  void testLoginEntryPointWhenUserHaveNotRegister() throws Exception {
+
+    UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898", "12345");
+    Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.empty());
+
+    final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
+    mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        .content(useRequestBody)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void testLoginEntryPointWithRightCredentials() throws Exception {
+
+    UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898", "12345");
+    ResultEntity<String> resultEntity = new ResultEntity<>("AuthToken");
+    resultEntity.setSuccess(true);
+    Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.of(resultEntity));
+
+    final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
+    mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        .content(useRequestBody)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void testLoginEntryPointWithWrongPassword() throws Exception {
+
+    UserAuthRequest userAuthRequest = new UserAuthRequest("9898989898", "12345");
+    ResultEntity<String> resultEntity = ResultEntity.error("Invalid Credentials");
+    resultEntity.setSuccess(false);
+    Mockito.when(mockUserAuthService.authenticateLoginRequest(userAuthRequest)).thenReturn(Optional.of(resultEntity));
+
+    final String useRequestBody = "{\"phoneNumber\":\"9898989898\",\"password\":\"12345\"}";
+    mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        .content(useRequestBody)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
   }
 }

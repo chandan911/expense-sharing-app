@@ -1,6 +1,10 @@
 package com.technogise.expensesharingapp.controllers;
 
+import com.technogise.expensesharingapp.auths.UserAuthService;
+import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
+import com.technogise.expensesharingapp.models.ResultEntity;
 import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.models.UserAuthRequest;
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.validators.Validator;
 import org.slf4j.Logger;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -24,6 +29,10 @@ public class UserController {
   @Autowired
   private Validator validator;
 
+  @Autowired
+  private UserAuthService userAuthService;
+
+  @CrossOrigin(origins = "*")
   @GetMapping("/users")
   public List<User> getAllUsers() {
     return userService.getAllUsers();
@@ -48,4 +57,16 @@ public class UserController {
       return new ResponseEntity<String>("Invalid data!", HttpStatus.BAD_REQUEST);
     }
   }
+
+  @CrossOrigin(origins = "*")
+  @PostMapping(path = "/login", consumes = "application/json", produces ="application/text")
+  public ResponseEntity<String> login(@RequestBody UserAuthRequest userAuthRequest) {
+    Optional<ResultEntity<String>> maybeResult = userAuthService.authenticateLoginRequest(userAuthRequest);
+    return maybeResult.map(result -> {
+      if (result.isSuccess()) {
+        return new ResponseEntity<>(result.getResult(), HttpStatus.OK);
+      } else return new ResponseEntity<>(result.getErrorMessage(), HttpStatus.UNAUTHORIZED);
+    }).orElseThrow(ResourceNotFoundException::new);
+  }
+
 }
