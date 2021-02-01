@@ -34,4 +34,3 @@ public class UserAuthServiceImpl implements UserAuthService {
         } else return ActionResult.error("Invalid Credentials");
     }
 }
-
