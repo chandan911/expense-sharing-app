@@ -20,56 +20,52 @@ import org.springframework.stereotype.Component;
 public class JwtTokenUtil implements Serializable {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    private static final long JWT_TOKEN_VALIDITY = 900_000;
+  private static final long JWT_TOKEN_VALIDITY = 900_000;
 
-    private static final String SECRET ="asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
+  private static final String SECRET = "asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
 
-    private Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+  private Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
-    public String generateAuthTokenFor(User user) {
-        Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, user.getId());
+  public String generateAuthTokenFor(User user) {
+    Map<String, Object> claims = new HashMap<>();
+    return doGenerateToken(claims, user.getId());
+  }
+
+  public Long validateToken(String token) throws AuthFailedException {
+    try {
+      String userIdFromToken = Jwts.parserBuilder()
+          .setSigningKey(key)
+          .build()
+          .parseClaimsJws(token)
+          .getBody().getSubject();
+      if (!isTokenExpired(token)) return Long.parseLong(userIdFromToken);
+    } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
+        IllegalArgumentException ex) {
+      LOGGER.error(ex.getMessage());
+      throw new AuthFailedException();
     }
+    return null;
+  }
 
-    public Long validateToken(String token) throws AuthFailedException {
-        try {
-                String userIdFromToken = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody().getSubject();
-                if(!isTokenExpired(token)) return Long.parseLong(userIdFromToken);
-        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
-                IllegalArgumentException ex) {
-            LOGGER.error(ex.getMessage());
-            throw new AuthFailedException();
-        }
-        return null;
-    }
-
-    private String doGenerateToken(Map<String, Object> claims, Long subject) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject.toString())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(key)
-                .compact();
-    }
+  private String doGenerateToken(Map<String, Object> claims, Long subject) {
+    return Jwts.builder()
+        .setClaims(claims)
+        .setSubject(subject.toString())
+        .setIssuedAt(new Date(System.currentTimeMillis()))
+        .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+        .signWith(key)
+        .compact();
+  }
 
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody().getExpiration();
-        return expiration.before(new Date());
-    }
+  private Boolean isTokenExpired(String token) {
+    final Date expiration = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody().getExpiration();
+    return expiration.before(new Date());
+  }
 }
-
-
-
-

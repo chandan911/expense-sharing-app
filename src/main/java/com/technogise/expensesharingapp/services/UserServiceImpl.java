@@ -37,14 +37,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Optional<User> getUserByPhoneNumber(String phoneNumber) {
-    User user = null;
-    for(User u: userRepository.findAll()){
-      if(u.getPhoneNumber().equals(phoneNumber)){
-        user = u;
-        break;
-      }
-    }
-    return Optional.ofNullable(user);
+    return userRepository.findByPhoneNumber(phoneNumber);
   }
 
   @Override

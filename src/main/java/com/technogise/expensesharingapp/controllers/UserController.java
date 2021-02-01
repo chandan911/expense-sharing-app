@@ -2,7 +2,7 @@ package com.technogise.expensesharingapp.controllers;
 
 import com.technogise.expensesharingapp.auths.UserAuthService;
 import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
-import com.technogise.expensesharingapp.models.ActionResult;
+import com.technogise.expensesharingapp.models.ResultEntity;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.models.UserAuthRequest;
 import com.technogise.expensesharingapp.services.UserService;
@@ -61,7 +61,7 @@ public class UserController {
   @CrossOrigin(origins = "*")
   @PostMapping(path = "/login", consumes = "application/json", produces ="application/text")
   public ResponseEntity<String> login(@RequestBody UserAuthRequest userAuthRequest) {
-    Optional<ActionResult<String>> maybeResult = userAuthService.authenticateLoginRequest(userAuthRequest);
+    Optional<ResultEntity<String>> maybeResult = userAuthService.authenticateLoginRequest(userAuthRequest);
     return maybeResult.map(result -> {
       if (result.isSuccess()) {
         return new ResponseEntity<>(result.getResult(), HttpStatus.OK);
@@ -70,5 +70,3 @@ public class UserController {
   }
 
 }
-
-

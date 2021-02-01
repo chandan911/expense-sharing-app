@@ -17,44 +17,43 @@ import java.util.Optional;
 @ActiveProfiles("test")
 public class UserServiceImplementationTest {
 
-    @Mock
-    private UserRepository mockUserRepository;
+  @Mock
+  private UserRepository mockUserRepository;
 
-    @InjectMocks
-    private UserServiceImpl mockUserService;
+  @InjectMocks
+  private UserServiceImpl mockUserService;
 
-    @Test
-    public void testGetUserByPhoneNumberWhenUserExist(){
-        User user1 = new User("user1","123456","9999999999");
-        User user2 = new User("user1","123457","9999999998");
-        User user3 = new User("user1","123458","9999999997");
+  @Test
+  public void testGetUserByPhoneNumberWhenUserExist() {
+    User user1 = new User("user1", "123456", "9999999999");
+    User user2 = new User("user1", "123457", "9999999998");
+    User user3 = new User("user1", "123458", "9999999997");
 
-        List<User> userList = List.of(user1,user2,user3);
+    List<User> userList = List.of(user1, user2, user3);
 
-        Mockito.when(mockUserRepository.findAll()).thenReturn(userList);
-        Optional<User> mayBeActualUser = mockUserService.getUserByPhoneNumber("9999999999");
-        User actualUser = null;
-        if(mayBeActualUser.isPresent()) {
-            actualUser = mayBeActualUser.get();
-        }
-        Assertions.assertEquals(user1,actualUser);
+    Mockito.when(mockUserRepository.findAll()).thenReturn(userList);
+    Optional<User> mayBeActualUser = mockUserService.getUserByPhoneNumber("9999999999");
+    User actualUser = null;
+    if (mayBeActualUser.isPresent()) {
+      actualUser = mayBeActualUser.get();
     }
+    Assertions.assertEquals(user1, actualUser);
+  }
 
-    @Test
-    public void testGetUserByPhoneNumberWhenUserNotExist(){
-        User user1 = new User("user1","123456","9999999999");
-        User user2 = new User("user1","123457","9999999998");
-        User user3 = new User("user1","123458","9999999997");
+  @Test
+  public void testGetUserByPhoneNumberWhenUserNotExist() {
+    User user1 = new User("user1", "123456", "9999999999");
+    User user2 = new User("user1", "123457", "9999999998");
+    User user3 = new User("user1", "123458", "9999999997");
 
-        List<User> userList = List.of(user1,user2,user3);
+    List<User> userList = List.of(user1, user2, user3);
 
-        Mockito.when(mockUserRepository.findAll()).thenReturn(userList);
-        Optional<User> mayBeActualUser = mockUserService.getUserByPhoneNumber("9999999996");
-        User actualUser = null;
-        if(mayBeActualUser.isPresent()) {
-            actualUser = mayBeActualUser.get();
-        }
-        Assertions.assertNull(actualUser);
+    Mockito.when(mockUserRepository.findAll()).thenReturn(userList);
+    Optional<User> mayBeActualUser = mockUserService.getUserByPhoneNumber("9999999996");
+    User actualUser = null;
+    if (mayBeActualUser.isPresent()) {
+      actualUser = mayBeActualUser.get();
     }
+    Assertions.assertNull(actualUser);
+  }
 }
-
