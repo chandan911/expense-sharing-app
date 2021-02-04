@@ -2,10 +2,12 @@ package com.technogise.expensesharingapp.controllers;
 
 import com.technogise.expensesharingapp.auths.UserAuthService;
 import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
-import com.technogise.expensesharingapp.models.ResultEntity;
-import com.technogise.expensesharingapp.models.User;
-import com.technogise.expensesharingapp.models.UserAuthRequest;
+import com.technogise.expensesharingapp.models.*;
+import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
+import com.technogise.expensesharingapp.services.DebtService;
+import com.technogise.expensesharingapp.services.ExpenseService;
 import com.technogise.expensesharingapp.services.UserService;
+import com.technogise.expensesharingapp.util.ResponseGenerator;
 import com.technogise.expensesharingapp.validators.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,15 @@ public class UserController {
 
   @Autowired
   private UserAuthService userAuthService;
+
+  @Autowired
+  private ExpenseService expenseService;
+
+  @Autowired
+  private DebtService debtService;
+
+  @Autowired
+  private ResponseGenerator responseGenerator;
 
   @CrossOrigin(origins = "*")
   @GetMapping("/users")
@@ -59,7 +70,7 @@ public class UserController {
   }
 
   @CrossOrigin(origins = "*")
-  @PostMapping(path = "/login", consumes = "application/json", produces ="application/text")
+  @PostMapping(path = "/login", consumes = "application/json", produces = "application/text")
   public ResponseEntity<String> login(@RequestBody UserAuthRequest userAuthRequest) {
     Optional<ResultEntity<String>> maybeResult = userAuthService.authenticateLoginRequest(userAuthRequest);
     return maybeResult.map(result -> {
@@ -69,4 +80,15 @@ public class UserController {
     }).orElseThrow(ResourceNotFoundException::new);
   }
 
+  @CrossOrigin(origins = "*")
+  @GetMapping(path = "/aggregated-data", produces = "application/json")
+  public ResponseEntity<?> getAggregateData(@RequestHeader("authToken") String authToken) {
+    Long userId = userAuthService.validateToken(authToken);
+    List<Expense> expenses = expenseService.getAllExpensesByUserId(userId);
+    List<Debt> debts = debtService.getAllDebtsByUserId(userId);
+    User user = userService.getUserById(userId).get();
+    List<User> allUsers = userService.getAllUsers();
+    AggregateDataResponse aggregateDataResponse = responseGenerator.aggregateResponseGenerator(expenses, debts, user, allUsers);
+    return new ResponseEntity<AggregateDataResponse>(aggregateDataResponse, HttpStatus.OK);
+  }
 }
