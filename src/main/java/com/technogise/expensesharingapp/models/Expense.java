@@ -8,31 +8,30 @@ import javax.persistence.Table;
 @Table(name = "expenses")
 public class Expense extends BasePersistenceModel {
 
-  @Column(name = "desc", nullable = false)
-  private String desc;
+  @Column(name = "description", nullable = false)
+  private String description;
 
   @Column(name = "amount", nullable = false)
   private Double amount;
 
   @Column(name = "payer_id", nullable = false)
-  private String payer_id;
-
+  private Long payerId;
 
   public Expense() {
   }
 
-  public Expense(String desc, Double amount, String payer_id) {
-    this.desc = desc;
+  public Expense(String description, Double amount, Long payerId) {
+    this.description = description;
     this.amount = amount;
-    this.payer_id = payer_id;
+    this.payerId = payerId;
   }
 
-  public String getDesc() {
-    return desc;
+  public String getDescription() {
+    return description;
   }
 
-  public void setDesc(String desc) {
-    this.desc = desc;
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public Double getAmount() {
@@ -43,12 +42,11 @@ public class Expense extends BasePersistenceModel {
     this.amount = amount;
   }
 
-  public String getPayer_id() {
-    return payer_id;
+  public Long getPayerId() {
+    return payerId;
   }
 
-  public void setPayer_id(String payer_id) {
-    this.payer_id = payer_id;
+  public void setPayerId(Long payerId) {
+    this.payerId = payerId;
   }
-
 }
