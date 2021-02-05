@@ -11,4 +11,5 @@ public interface UserAuthService {
   Optional<ResultEntity<String>> authenticateLoginRequest(UserAuthRequest userAuthRequest);
 
   Long validateToken(String authToken);
+
 }

@@ -1,6 +1,7 @@
 package com.technogise.expensesharingapp.responseModels;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class DebtResponse implements Serializable {
 
@@ -52,5 +53,18 @@ public class DebtResponse implements Serializable {
 
   public void setDebtor(String debtor) {
     this.debtor = debtor;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DebtResponse)) return false;
+    DebtResponse that = (DebtResponse) o;
+    return Objects.equals(id, that.id) && Objects.equals(amount, that.amount) && Objects.equals(creditor, that.creditor) && Objects.equals(debtor, that.debtor);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, amount, creditor, debtor);
   }
 }

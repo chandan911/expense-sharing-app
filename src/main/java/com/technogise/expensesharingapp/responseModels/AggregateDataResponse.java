@@ -4,6 +4,7 @@ import com.technogise.expensesharingapp.models.User;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class AggregateDataResponse implements Serializable {
   private List<ExpenseResponse> expenses;
@@ -54,5 +55,18 @@ public class AggregateDataResponse implements Serializable {
 
   public void setOtherUser(List<User> otherUser) {
     this.otherUser = otherUser;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AggregateDataResponse)) return false;
+    AggregateDataResponse that = (AggregateDataResponse) o;
+    return Objects.equals(expenses, that.expenses) && Objects.equals(debts, that.debts) && Objects.equals(user, that.user) && Objects.equals(otherUser, that.otherUser);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(expenses, debts, user, otherUser);
   }
 }
