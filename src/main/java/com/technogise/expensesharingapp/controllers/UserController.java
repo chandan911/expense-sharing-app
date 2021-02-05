@@ -3,6 +3,7 @@ package com.technogise.expensesharingapp.controllers;
 import com.technogise.expensesharingapp.auths.UserAuthService;
 import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
 import com.technogise.expensesharingapp.models.*;
+import com.technogise.expensesharingapp.repositories.DebtRepository;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
 import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.services.DebtService;
@@ -48,6 +49,7 @@ public class UserController {
 
   @Autowired
   private ExpenseDebtService expenseDebtService;
+
 
   @CrossOrigin(origins = "*")
   @GetMapping("/users")
@@ -99,7 +101,7 @@ public class UserController {
   }
 
 
-  @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/text")
+  @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/json")
   public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody AddExpense addExpense) {
 
     Long payerId = userAuthService.validateToken(authToken);
@@ -115,7 +117,9 @@ public class UserController {
         ArrayList<Long> debtorId = addExpense.getDebtorId();
         for(Integer id  = 0; id < debtorId.size();id++) {
           ExpenseDebtor expenseDebtor = new ExpenseDebtor(expense.getId(), debtorId.get(id));
-          expenseDebtService.createExpenseDebt(expenseDebtor);
+          if(expenseDebtor.getDebtorId() != addExpense.getPayerId()) {
+            expenseDebtService.createExpenseDebt(expenseDebtor);
+          }
         }
         List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
         List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
@@ -126,9 +130,21 @@ public class UserController {
         LOGGER.error(exception.getMessage(), exception.getCause());
         return new ResponseEntity<String>("An unexpected error occured!", HttpStatus.INTERNAL_SERVER_ERROR);
       }
-    }
-    else {
+    } else {
       return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
     }
+  }
+  @Autowired
+  private DebtRepository debtRepository;
+
+  @CrossOrigin(origins = "*")
+  @PostMapping(path = "/add-debt", consumes = "application/json", produces = "application/json")
+  public ResponseEntity<?> addDebt(@RequestBody Debt debt) {
+    return new ResponseEntity<Debt>(debtRepository.save(debt), HttpStatus.CREATED);
+  }
+  @CrossOrigin(origins = "*")
+  @GetMapping(path = "/show-debt")
+  public ResponseEntity<?> showDebts() {
+    return new ResponseEntity<List<Debt>>(debtRepository.findAll(), HttpStatus.ACCEPTED);
   }
 }
