@@ -5,6 +5,7 @@ import com.technogise.expensesharingapp.models.Expense;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
 import com.technogise.expensesharingapp.responseModels.DebtResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.responseModels.ExpenseResponse;
 import org.springframework.stereotype.Component;
 
@@ -19,4 +20,5 @@ public interface ResponseGenerator {
 
   AggregateDataResponse aggregateResponseGenerator(List<Expense> expenses, List<Debt> debts, User user, List<User> allUsers);
 
+  ExpenseDebtResponse expenseDebtResponseGenerator(List<Expense> expenses, List<Debt> debts, User user);
 }
