@@ -4,7 +4,9 @@ import com.technogise.expensesharingapp.auths.UserAuthService;
 import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
 import com.technogise.expensesharingapp.models.*;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.services.DebtService;
+import com.technogise.expensesharingapp.services.ExpenseDebtService;
 import com.technogise.expensesharingapp.services.ExpenseService;
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.util.ResponseGenerator;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +45,9 @@ public class UserController {
 
   @Autowired
   private ResponseGenerator responseGenerator;
+
+  @Autowired
+  private ExpenseDebtService expenseDebtService;
 
   @CrossOrigin(origins = "*")
   @GetMapping("/users")
@@ -90,5 +96,39 @@ public class UserController {
     List<User> allUsers = userService.getAllUsers();
     AggregateDataResponse aggregateDataResponse = responseGenerator.aggregateResponseGenerator(expenses, debts, user, allUsers);
     return new ResponseEntity<AggregateDataResponse>(aggregateDataResponse, HttpStatus.OK);
+  }
+
+
+  @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/text")
+  public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody AddExpense addExpense) {
+
+    Long payerId = userAuthService.validateToken(authToken);
+    if(validator.validateUserId(addExpense.getPayerId()) &&
+       addExpense.getAmount() > 0 &&
+       addExpense.getDescription().length() > 0 &&
+       addExpense.getDebtorId().size() >= 1) {
+
+      try {
+        Expense expense = new Expense(addExpense.getDescription(), addExpense.getAmount(), addExpense.getPayerId());
+        expense = expenseService.createExpense(expense);
+
+        ArrayList<Long> debtorId = addExpense.getDebtorId();
+        for(Integer id  = 0; id < debtorId.size();id++) {
+          ExpenseDebtor expenseDebtor = new ExpenseDebtor(expense.getId(), debtorId.get(id));
+          expenseDebtService.createExpenseDebt(expenseDebtor);
+        }
+        List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
+        List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
+        User user = userService.getUserById(payerId).get();
+        ExpenseDebtResponse expenseDebtResponse = responseGenerator.expenseDebtResponseGenerator(expenses, debts, user);
+        return new ResponseEntity<ExpenseDebtResponse>(expenseDebtResponse, HttpStatus.OK);
+      } catch (RuntimeException exception) {
+        LOGGER.error(exception.getMessage(), exception.getCause());
+        return new ResponseEntity<String>("An unexpected error occured!", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+    else {
+      return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
+    }
   }
 }
