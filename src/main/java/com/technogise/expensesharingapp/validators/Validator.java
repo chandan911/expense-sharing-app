@@ -11,4 +11,6 @@ public interface Validator {
 
   Boolean validateUserPhoneNumber(String phoneNumber);
 
+  Boolean validateUserId(Long payerId);
+
 }
