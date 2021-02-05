@@ -5,6 +5,7 @@ import com.technogise.expensesharingapp.models.Expense;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
 import com.technogise.expensesharingapp.responseModels.DebtResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.responseModels.ExpenseResponse;
 import com.technogise.expensesharingapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,4 +57,17 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
     return aggregateDataResponse;
   }
 
+  @Override
+  public ExpenseDebtResponse expenseDebtResponseGenerator(List<Expense> expenses, List<Debt> debts, User user) {
+    List<ExpenseResponse> expenseResponses = new ArrayList<ExpenseResponse>();
+    for (int index = 0; index < expenses.size(); index++)
+      expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
+    List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
+    for (int index = 0; index < debts.size(); index++) {
+      debtResponses.add(debtResponseGenerator(debts.get(index)));
+      if (debtResponses.get(index).getCreditor() == user.getName()) debtResponses.get(index).setCreditor(null);
+      if (debtResponses.get(index).getDebtor() == user.getName()) debtResponses.get(index).setDebtor(null);
+    }
+    return new ExpenseDebtResponse(expenseResponses, debtResponses);
+  }
 }
