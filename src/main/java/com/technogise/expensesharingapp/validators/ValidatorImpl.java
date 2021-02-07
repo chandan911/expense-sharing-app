@@ -5,6 +5,7 @@ import com.technogise.expensesharingapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -41,5 +42,13 @@ public class ValidatorImpl implements Validator {
     return user.isPresent();
   }
 
+  @Override
+  public Boolean validateDebtorList(ArrayList<Long> debtorIdList) {
+    Integer countValidUsers = 0;
+    for(Integer id = 0;id < debtorIdList.size();id++) {
+      if(validateUserId(debtorIdList.get(id)))  countValidUsers++;
+    }
+    return (countValidUsers == debtorIdList.size());
+  }
 }
 
