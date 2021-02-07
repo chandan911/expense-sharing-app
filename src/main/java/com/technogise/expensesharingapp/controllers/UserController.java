@@ -108,9 +108,9 @@ public class UserController {
     if(validator.validateUserId(addExpense.getPayerId()) &&
        addExpense.getAmount() > 0 &&
        addExpense.getDescription().length() > 0 &&
-       addExpense.getDebtorId().size() >= 1) {
-
-      try {
+       addExpense.getDebtorId().size() >= 1 &&
+       validator.validateDebtorList(addExpense.getDebtorId())) {
+       try {
         Expense expense = new Expense(addExpense.getDescription(), addExpense.getAmount(), addExpense.getPayerId());
         expense = expenseService.createExpense(expense);
 
@@ -119,6 +119,8 @@ public class UserController {
           ExpenseDebtor expenseDebtor = new ExpenseDebtor(expense.getId(), debtorId.get(id));
           if(expenseDebtor.getDebtorId() != addExpense.getPayerId()) {
             expenseDebtService.createExpenseDebt(expenseDebtor);
+            Double debtAmount = (addExpense.getAmount()/debtorId.size());
+            debtService.updateDebtRepository(addExpense.getPayerId(), expenseDebtor.getDebtorId(), debtAmount);
           }
         }
         List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
