@@ -10,5 +10,5 @@ public interface DebtService {
 
   List<Debt> getAllDebtsByUserId(Long userId);
 
-  updateDebtRepository(Long payerId, Long debtorId, Double debtAmount);
+  void updateDebtRepository(Long payerId, Long debtorId, Double debtAmount);
 }
