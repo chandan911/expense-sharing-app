@@ -1,14 +1,26 @@
 package com.technogise.expensesharingapp.validators;
 
+import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.services.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @ActiveProfiles("test")
 public class ValidatorImplTest {
+
+  @Mock
+  private UserService mockUserService;
 
   @InjectMocks
   private ValidatorImpl validatorImpl;
@@ -54,4 +66,18 @@ public class ValidatorImplTest {
     String password = "";
     Assertions.assertFalse(validatorImpl.validateUserPassword(password));
   }
+
+  @Test
+  void testvalidateUserIdWithInvalidUser() {
+    Optional<User> user = Optional.empty();
+    Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(user);
+    Assertions.assertFalse(validatorImpl.validateUserId(1L));
+  }
+
+  @Test
+  void testvalidateUserIdWithValidUser() {
+      User user = new User();
+      Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(user));
+      Assertions.assertTrue(validatorImpl.validateUserId(1L));
+    }
 }
