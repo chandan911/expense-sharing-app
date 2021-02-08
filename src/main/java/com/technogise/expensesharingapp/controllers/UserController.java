@@ -104,6 +104,9 @@ public class UserController {
   @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/json")
   public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody AddExpense addExpense) {
 
+    if(authToken == null) {
+      return new ResponseEntity<String>("Token not found!", HttpStatus.BAD_REQUEST);
+    }
     Long payerId = userAuthService.validateToken(authToken);
     if(validator.validateUserId(addExpense.getPayerId()) &&
        addExpense.getAmount() > 0 &&
@@ -130,7 +133,7 @@ public class UserController {
         return new ResponseEntity<ExpenseDebtResponse>(expenseDebtResponse, HttpStatus.OK);
       } catch (RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception.getCause());
-        return new ResponseEntity<String>("An unexpected error occured! or No auth token present in request", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<String>("An unexpected error occured!", HttpStatus.INTERNAL_SERVER_ERROR);
       }
     } else {
       return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
