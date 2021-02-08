@@ -15,6 +15,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
   @Query("SELECT e FROM Expense e WHERE e.payerId=?1 or " +
       "e.id in (SELECT d.expenseId FROM ExpenseDebtor d WHERE d.debtorId=?1) " +
       "ORDER BY e.createdAt")
-  List<Expense> getAllExpensesById(Long userId);
+  List<Expense> findAllExpensesByUserId(Long userId);
 
 }

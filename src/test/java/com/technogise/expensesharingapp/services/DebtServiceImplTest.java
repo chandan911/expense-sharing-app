@@ -31,7 +31,7 @@ public class DebtServiceImplTest {
     Debt Debt3 = new Debt(3L, 1L, 180.0);
     List<Debt> expectedDebts = List.of(Debt1, Debt2, Debt3);
 
-    Mockito.when(mockDebtRepository.getAllDebtsByUserId(any(Long.class))).thenReturn(expectedDebts);
+    Mockito.when(mockDebtRepository.findAllDebtsByUserId(any(Long.class))).thenReturn(expectedDebts);
 
     List<Debt> actualDebts = mockDebtServiceImpl.getAllDebtsByUserId(4L);
 

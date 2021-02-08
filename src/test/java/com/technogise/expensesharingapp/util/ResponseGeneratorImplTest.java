@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -96,15 +97,15 @@ public class ResponseGeneratorImplTest {
 
     AggregateDataResponse actualAggregateDataResponse = mockResponseGeneratorImpl.aggregateResponseGenerator(expenses, debts, user1, users);
 
-    List<ExpenseResponse> expenseResponses = new ArrayList<ExpenseResponse>();
-    for (int index = 0; index < expenses.size(); index++)
-      expenseResponses.add(mockResponseGeneratorImpl.expenseResponseGenerator(expenses.get(index)));
-    List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
-    for (int index = 0; index < debts.size(); index++) {
-      debtResponses.add(mockResponseGeneratorImpl.debtResponseGenerator(debts.get(index)));
-      if (debtResponses.get(index).getCreditor() == user1.getName()) debtResponses.get(index).setCreditor(null);
-      if (debtResponses.get(index).getDebtor() == user1.getName()) debtResponses.get(index).setDebtor(null);
-    }
+    List<ExpenseResponse> expenseResponses =
+        expenses.stream().map(expense -> mockResponseGeneratorImpl.expenseResponseGenerator(expense)).collect( Collectors.toList() );
+    List<DebtResponse> debtResponses = debts.stream().map(debt ->{
+      DebtResponse debtResponse = mockResponseGeneratorImpl.debtResponseGenerator(debt);
+      if(debtResponse.getCreditor().equals(user1.getName())) debtResponse.setCreditor(null);
+      if(debtResponse.getDebtor().equals(user1.getName())) debtResponse.setDebtor(null);
+      return debtResponse;
+    }).collect(Collectors.toList());
+
     users.remove(user1);
     AggregateDataResponse expectedAggregateDataResponse = new AggregateDataResponse(expenseResponses, debtResponses, user1, users);
 

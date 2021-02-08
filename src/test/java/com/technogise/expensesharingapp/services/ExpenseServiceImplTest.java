@@ -31,7 +31,7 @@ public class ExpenseServiceImplTest {
     Expense expense3 = new Expense("Picnic", 3000.0, 4L);
     List<Expense> expectedExpenses = List.of(expense1, expense2, expense3);
 
-    Mockito.when(mockExpenseRepository.getAllExpensesById(any(Long.class))).thenReturn(expectedExpenses);
+    Mockito.when(mockExpenseRepository.findAllExpensesByUserId(any(Long.class))).thenReturn(expectedExpenses);
 
     List<Expense> actualExpenses = mockExpenseServiceImpl.getAllExpensesByUserId(4L);
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ResponseGeneratorImpl implements ResponseGenerator {
@@ -42,15 +43,14 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
   @Override
   public AggregateDataResponse aggregateResponseGenerator
       (List<Expense> expenses, List<Debt> debts, User user, List<User> allUsers) {
-    List<ExpenseResponse> expenseResponses = new ArrayList<ExpenseResponse>();
-    for (int index = 0; index < expenses.size(); index++)
-      expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
-    List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
-    for (int index = 0; index < debts.size(); index++) {
-      debtResponses.add(debtResponseGenerator(debts.get(index)));
-      if (debtResponses.get(index).getCreditor() == user.getName()) debtResponses.get(index).setCreditor(null);
-      if (debtResponses.get(index).getDebtor() == user.getName()) debtResponses.get(index).setDebtor(null);
-    }
+    List<ExpenseResponse> expenseResponses =
+        expenses.stream().map(expense -> expenseResponseGenerator(expense)).collect( Collectors.toList() );
+    List<DebtResponse> debtResponses = debts.stream().map(debt ->{
+      DebtResponse debtResponse = debtResponseGenerator(debt);
+      if(debtResponse.getCreditor().equals(user.getName())) debtResponse.setCreditor(null);
+      if(debtResponse.getDebtor().equals(user.getName())) debtResponse.setDebtor(null);
+      return debtResponse;
+    }).collect(Collectors.toList());
     allUsers.remove(user);
     AggregateDataResponse aggregateDataResponse = new AggregateDataResponse(expenseResponses, debtResponses, user, allUsers);
     return aggregateDataResponse;

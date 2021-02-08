@@ -13,16 +13,16 @@ public class AggregateDataResponse implements Serializable {
 
   private User user;
 
-  private List<User> otherUser;
+  private List<User> otherUsers;
 
   public AggregateDataResponse() {
   }
 
-  public AggregateDataResponse(List<ExpenseResponse> expenses, List<DebtResponse> debts, User user, List<User> otherUser) {
+  public AggregateDataResponse(List<ExpenseResponse> expenses, List<DebtResponse> debts, User user, List<User> otherUsers) {
     this.expenses = expenses;
     this.debts = debts;
     this.user = user;
-    this.otherUser = otherUser;
+    this.otherUsers = otherUsers;
   }
 
   public List<ExpenseResponse> getExpenses() {
@@ -49,12 +49,12 @@ public class AggregateDataResponse implements Serializable {
     this.user = user;
   }
 
-  public List<User> getOtherUser() {
-    return otherUser;
+  public List<User> getOtherUsers() {
+    return otherUsers;
   }
 
-  public void setOtherUser(List<User> otherUser) {
-    this.otherUser = otherUser;
+  public void setOtherUsers(List<User> otherUsers) {
+    this.otherUsers = otherUsers;
   }
 
   @Override
@@ -62,11 +62,11 @@ public class AggregateDataResponse implements Serializable {
     if (this == o) return true;
     if (!(o instanceof AggregateDataResponse)) return false;
     AggregateDataResponse that = (AggregateDataResponse) o;
-    return Objects.equals(expenses, that.expenses) && Objects.equals(debts, that.debts) && Objects.equals(user, that.user) && Objects.equals(otherUser, that.otherUser);
+    return expenses.equals(that.expenses) && debts.equals(that.debts) && user.equals(that.user) && otherUsers.equals(that.otherUsers);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(expenses, debts, user, otherUser);
+    return Objects.hash(expenses, debts, user, otherUsers);
   }
 }
