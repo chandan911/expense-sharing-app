@@ -40,9 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-  @Autowired
-  private UserAuthService mockUserAuthService;
-
   @MockBean
   private ExpenseService mockExpenseService;
 
@@ -56,7 +53,7 @@ public class UserControllerTest {
   private Validator mockValidator;
 
   @MockBean
-  private UserAuthService userAuthService;
+  private UserAuthService mockUserAuthService;
 
   @MockBean
   private ResponseGenerator mockResponseGenerator;
@@ -268,14 +265,15 @@ public class UserControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/aggregated-data")
         .header("authToken", "dummyToken")
         .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(200))
         .andExpect(jsonPath("$.expenses.[0].payerName", is(expenseResponse1.getPayerName())))
         .andExpect(jsonPath("$.expenses.[1].payerName", is(expenseResponse2.getPayerName())))
         .andExpect(jsonPath("$.expenses.[2].payerName", is(expenseResponse3.getPayerName())))
         .andExpect(jsonPath("$.debts.[0].creditor", is(debtResponse1.getCreditor())))
         .andExpect(jsonPath("$.debts.[1].creditor", is(debtResponse2.getCreditor())))
         .andExpect(jsonPath("$.debts.[2].creditor", is(debtResponse3.getCreditor())))
-        .andExpect(jsonPath("$.otherUser.[0].name", is(user1.getName())))
-        .andExpect(jsonPath("$.otherUser.[1].name", is(user2.getName())))
-        .andExpect(jsonPath("$.otherUser.[2].name", is(user3.getName())));
+        .andExpect(jsonPath("$.otherUsers.[0].name", is(user1.getName())))
+        .andExpect(jsonPath("$.otherUsers.[1].name", is(user2.getName())))
+        .andExpect(jsonPath("$.otherUsers.[2].name", is(user3.getName())));
   }
 }
