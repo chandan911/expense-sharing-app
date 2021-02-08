@@ -1,32 +1,39 @@
 package com.technogise.expensesharingapp.controllers;
 
 import com.technogise.expensesharingapp.auths.UserAuthService;
+import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.ResultEntity;
+import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.models.UserAuthRequest;
+import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
+import com.technogise.expensesharingapp.responseModels.DebtResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseResponse;
+import com.technogise.expensesharingapp.services.DebtService;
+import com.technogise.expensesharingapp.services.ExpenseService;
+import com.technogise.expensesharingapp.services.UserService;
+import com.technogise.expensesharingapp.util.ResponseGenerator;
+import com.technogise.expensesharingapp.validators.Validator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import com.technogise.expensesharingapp.models.User;
-import com.technogise.expensesharingapp.services.UserService;
-import com.technogise.expensesharingapp.validators.Validator;
-import org.springframework.dao.DataIntegrityViolationException;
-
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -34,13 +41,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
 
   @MockBean
-  private UserAuthService mockUserAuthService;
+  private ExpenseService mockExpenseService;
+
+  @MockBean
+  private DebtService mockDebtService;
 
   @MockBean
   private UserService mockUserService;
 
   @MockBean
   private Validator mockValidator;
+
+  @MockBean
+  private UserAuthService mockUserAuthService;
+
+  @MockBean
+  private ResponseGenerator mockResponseGenerator;
 
   @Autowired
   private MockMvc mockMvc;
@@ -198,5 +214,66 @@ public class UserControllerTest {
         .content(useRequestBody)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void testGetAggregateDataWithInvalidToken() throws Exception {
+
+    Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenThrow(new AuthFailedException());
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/aggregated-data")
+        .header("authToken", "dummyToken")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(401));
+  }
+
+  @Test
+  void testGetAggregateDataWithValidToken() throws Exception {
+
+    Date date = new Date();
+    ExpenseResponse expenseResponse1 = new ExpenseResponse("Movie", 2600.0, "Shubham", date);
+    ExpenseResponse expenseResponse2 = new ExpenseResponse("Dinner", 2800.0, "Satyam", date);
+    ExpenseResponse expenseResponse3 = new ExpenseResponse("Lunch", 1700.0, "Satyam", date);
+    List<ExpenseResponse> expenseResponses = List.of(expenseResponse1, expenseResponse2, expenseResponse3);
+
+    DebtResponse debtResponse1 = new DebtResponse(1L, 105.0, "Shubham", "Amir");
+    DebtResponse debtResponse2 = new DebtResponse(2L, 210.0, "Shubham", "Satyam");
+    DebtResponse debtResponse3 = new DebtResponse(3L, 180.0, "Amir", "Satyam");
+    List<DebtResponse> debtResponses = List.of(debtResponse1, debtResponse2, debtResponse3);
+
+    User user = new User("sahu", "pass", "9304011012");
+
+    User user1 = new User("chandan", "pass_1", "9304011010");
+    User user2 = new User("sahil", "pass_2", "9304012346");
+    User user3 = new User("satyam", "pass_3", "9304012347");
+    List<User> users = new ArrayList<User>() {{
+      add(user1);
+      add(user2);
+      add(user3);
+    }};
+
+    AggregateDataResponse expectedAggregateDataResponse = new AggregateDataResponse(expenseResponses, debtResponses, user, users);
+
+    Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
+    Mockito.when(mockExpenseService.getAllExpensesByUserId(any(Long.class))).thenReturn(new ArrayList<>());
+    Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(new User()));
+    Mockito.when(mockUserService.getAllUsers()).thenReturn(new ArrayList<User>());
+    Mockito.when(mockResponseGenerator.aggregateResponseGenerator(any(), any(), any(), any()))
+        .thenReturn(expectedAggregateDataResponse);
+
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/aggregated-data")
+        .header("authToken", "dummyToken")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(200))
+        .andExpect(jsonPath("$.expenses.[0].payerName", is(expenseResponse1.getPayerName())))
+        .andExpect(jsonPath("$.expenses.[1].payerName", is(expenseResponse2.getPayerName())))
+        .andExpect(jsonPath("$.expenses.[2].payerName", is(expenseResponse3.getPayerName())))
+        .andExpect(jsonPath("$.debts.[0].creditor", is(debtResponse1.getCreditor())))
+        .andExpect(jsonPath("$.debts.[1].creditor", is(debtResponse2.getCreditor())))
+        .andExpect(jsonPath("$.debts.[2].creditor", is(debtResponse3.getCreditor())))
+        .andExpect(jsonPath("$.otherUsers.[0].name", is(user1.getName())))
+        .andExpect(jsonPath("$.otherUsers.[1].name", is(user2.getName())))
+        .andExpect(jsonPath("$.otherUsers.[2].name", is(user3.getName())));
   }
 }

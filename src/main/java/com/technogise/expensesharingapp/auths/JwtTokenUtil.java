@@ -1,13 +1,6 @@
 package com.technogise.expensesharingapp.auths;
 
 
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.User;
 import io.jsonwebtoken.*;
@@ -15,6 +8,13 @@ import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component("JwtTokenUtil")
 public class JwtTokenUtil implements Serializable {

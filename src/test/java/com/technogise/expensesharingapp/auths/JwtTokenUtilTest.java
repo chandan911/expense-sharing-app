@@ -1,6 +1,5 @@
 package com.technogise.expensesharingapp.auths;
 
-import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,12 +20,5 @@ class JwtTokenUtilTest {
     user.setId((long) 1);
     String authToken = jwtTokenUtil.generateAuthTokenFor(user);
     Assertions.assertNotNull(authToken);
-  }
-
-  @Test
-  public void testValidateTokenForUser() throws AuthFailedException {
-    String authToken = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjExODQ0MTI5LCJleHAiOjE2MTI3NDQxMjl9.3Q36ScmDh2SGSZ-grM9rKXbFScSpxfdUYgXIzaCICKaAH30GAmJTYrXDUUR2OxwI";
-    Long id = jwtTokenUtil.validateToken(authToken);
-    Assertions.assertEquals(id, 1);
   }
 }

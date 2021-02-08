@@ -33,4 +33,9 @@ public class UserAuthServiceImpl implements UserAuthService {
       return new ResultEntity<>(authToken);
     } else return ResultEntity.error("Invalid Credentials");
   }
+
+  @Override
+  public Long validateToken(String token) {
+    return jwtTokenUtil.validateToken(token);
+  }
 }
