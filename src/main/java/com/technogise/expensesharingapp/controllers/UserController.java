@@ -139,17 +139,4 @@ public class UserController {
       return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
     }
   }
-  @Autowired
-  private DebtRepository debtRepository;
-
-  @CrossOrigin(origins = "*")
-  @PostMapping(path = "/add-debt", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<?> addDebt(@RequestBody Debt debt) {
-    return new ResponseEntity<Debt>(debtRepository.save(debt), HttpStatus.CREATED);
-  }
-  @CrossOrigin(origins = "*")
-  @GetMapping(path = "/show-debt")
-  public ResponseEntity<?> showDebts() {
-    return new ResponseEntity<List<Debt>>(debtRepository.findAll(), HttpStatus.ACCEPTED);
-  }
 }
