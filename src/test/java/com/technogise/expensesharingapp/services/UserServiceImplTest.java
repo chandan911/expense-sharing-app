@@ -1,6 +1,8 @@
 package com.technogise.expensesharingapp.services;
 
+import com.technogise.expensesharingapp.models.Expense;
 import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.repositories.ExpenseRepository;
 import com.technogise.expensesharingapp.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,12 @@ public class UserServiceImplTest {
   @InjectMocks
   private UserServiceImpl mockUserService;
 
+  @InjectMocks
+  private ExpenseServiceImpl mockExpenseService;
+
+  @Mock
+  private ExpenseRepository mockExpenseRepository;
+
   @Test
   void testGetAllUsers() {
     User user1 = new User("shubham", "pass_1", "PHONE_NUMBER1");
@@ -50,5 +58,15 @@ public class UserServiceImplTest {
     Mockito.when(mockUserRepository.save(userWithEncryptedPassword)).thenReturn(userWithEncryptedPassword);
     User savedUser = mockUserService.createOrUpdate(userFromRequest);
     Assertions.assertEquals(userWithEncryptedPassword, savedUser);
+  }
+
+  @Test
+  void testCreateExpense() {
+    Expense originalExpense = new Expense("test", 10.0, 1L);
+    Expense savedExpense = new Expense("test", 10.0, 1L);
+    savedExpense.setId(1L);
+    Mockito.when(mockExpenseRepository.save(savedExpense)).thenReturn(savedExpense);
+    Expense saveExpense = mockExpenseService.createExpense(originalExpense);
+    Assertions.assertEquals(savedExpense, savedExpense);
   }
 }
