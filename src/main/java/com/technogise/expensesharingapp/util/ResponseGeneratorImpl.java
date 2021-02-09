@@ -59,7 +59,7 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
 
   @Override
   public ExpenseDebtResponse expenseDebtResponseGenerator(List<Expense> expenses, List<Debt> debts, User user) {
-    List<ExpenseResponse> expenseResponses = new ArrayList<ExpenseResponse>();
+    List<ExpenseResponse> expenseResponses = new ArrayList  <ExpenseResponse>();
     for (int index = 0; index < expenses.size(); index++)
       expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
     List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
@@ -68,6 +68,7 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
       if (debtResponses.get(index).getCreditor() == user.getName()) debtResponses.get(index).setCreditor(null);
       if (debtResponses.get(index).getDebtor() == user.getName()) debtResponses.get(index).setDebtor(null);
     }
-    return new ExpenseDebtResponse(expenseResponses, debtResponses);
+    ExpenseDebtResponse expenseDebtResponse = new ExpenseDebtResponse(expenseResponses, debtResponses);
+    return expenseDebtResponse;
   }
 }
