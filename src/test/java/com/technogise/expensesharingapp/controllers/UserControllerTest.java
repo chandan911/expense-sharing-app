@@ -1,9 +1,17 @@
 package com.technogise.expensesharingapp.controllers;
 
 import com.technogise.expensesharingapp.auths.UserAuthService;
-import com.technogise.expensesharingapp.models.ResultEntity;
-import com.technogise.expensesharingapp.models.UserAuthRequest;
+import com.technogise.expensesharingapp.exceptions.AuthFailedException;
+import com.technogise.expensesharingapp.models.*;
+import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
+import com.technogise.expensesharingapp.responseModels.DebtResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
+import com.technogise.expensesharingapp.responseModels.ExpenseResponse;
+import com.technogise.expensesharingapp.services.DebtService;
+import com.technogise.expensesharingapp.services.ExpenseService;
+import com.technogise.expensesharingapp.util.ResponseGenerator;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,19 +22,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.validators.Validator;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,6 +50,18 @@ public class UserControllerTest {
 
   @MockBean
   private Validator mockValidator;
+
+  @MockBean
+  private Expense expense;
+
+  @MockBean
+  private DebtService mockDebtService;
+
+  @MockBean
+  private ExpenseService mockExpenseService;
+
+  @MockBean
+  private ResponseGenerator mockResponseGenerator;
 
   @Autowired
   private MockMvc mockMvc;
@@ -198,5 +219,73 @@ public class UserControllerTest {
         .content(useRequestBody)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void testExpensesAndDebtsWithExpiredToken() throws Exception {
+
+    Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenThrow(new AuthFailedException());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
+            .header("authToken", "dummyToken")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(400));
+  }
+
+  @Test
+  void testExpensesAndDebtsWithInValidToken() throws Exception {
+
+    Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
+    Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
+    Mockito.when(mockDebtService.updateDebtProcess(any(AddExpense.class))).thenThrow(new RuntimeException(""));
+
+    final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
+    mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
+            .header("authToken", "dummyToken")
+            .content(useRequestBody)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(401));
+  }
+
+  @Test
+  void testExpensesAndDebtsWithValidToken() throws Exception {
+
+    Date date = new Date();
+    ExpenseResponse expenseResponse1 = new ExpenseResponse("Movie", 2600.0, "Shubham", date);
+    ExpenseResponse expenseResponse2 = new ExpenseResponse("Dinner", 2800.0, "Satyam", date);
+    ExpenseResponse expenseResponse3 = new ExpenseResponse("Lunch", 1700.0, "Satyam", date);
+    List<ExpenseResponse> expenseResponses = List.of(expenseResponse1, expenseResponse2, expenseResponse3);
+
+    DebtResponse debtResponse1 = new DebtResponse(1L, 105.0, "Shubham", "Amir");
+    DebtResponse debtResponse2 = new DebtResponse(2L, 210.0, "Shubham", "Satyam");
+    DebtResponse debtResponse3 = new DebtResponse(3L, 180.0, "Amir", "Satyam");
+    List<DebtResponse> debtResponses = List.of(debtResponse1, debtResponse2, debtResponse3);
+
+
+    final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
+    ExpenseDebtResponse expectedExpenseDebtResponse
+            = new ExpenseDebtResponse(expenseResponses, debtResponses);
+
+    Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
+    Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
+    Mockito.when(mockDebtService.updateDebtProcess(any(AddExpense.class))).thenReturn(true);
+    Mockito.when(mockExpenseService.getAllExpensesByUserId(any(Long.class))).thenReturn(new ArrayList<>());
+    Mockito.when(mockDebtService.getAllDebtsByUserId(any(Long.class))).thenReturn(new ArrayList<Debt>());
+    Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(new User()));
+    Mockito.when(mockResponseGenerator.expenseDebtResponseGenerator(any(), any(), any()))
+            .thenReturn(expectedExpenseDebtResponse);
+
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
+            .header("authToken", "dummyToken")
+            .content(useRequestBody)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$.expenses.[0].payerName", is(expenseResponse1.getPayerName())))
+            .andExpect(jsonPath("$.expenses.[1].payerName", is(expenseResponse2.getPayerName())))
+            .andExpect(jsonPath("$.expenses.[2].payerName", is(expenseResponse3.getPayerName())))
+            .andExpect(jsonPath("$.debts.[0].creditor", is(debtResponse1.getCreditor())))
+            .andExpect(jsonPath("$.debts.[1].creditor", is(debtResponse2.getCreditor())))
+            .andExpect(jsonPath("$.debts.[2].creditor", is(debtResponse3.getCreditor())));
   }
 }
