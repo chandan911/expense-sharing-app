@@ -100,7 +100,7 @@ public class UserController {
     return new ResponseEntity<AggregateDataResponse>(aggregateDataResponse, HttpStatus.OK);
   }
 
-
+  @CrossOrigin(origins = "*")
   @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/json")
   public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody AddExpense addExpense) {
 
@@ -108,32 +108,17 @@ public class UserController {
       return new ResponseEntity<String>("Token not found!", HttpStatus.BAD_REQUEST);
     }
     Long payerId = userAuthService.validateToken(authToken);
-    if(validator.validateUserId(addExpense.getPayerId()) &&
-       addExpense.getAmount() > 0 &&
-       addExpense.getDescription().length() > 0 &&
-       addExpense.getDebtorId().size() >= 1 &&
-       validator.validateDebtorList(addExpense.getDebtorId())) {
+    if(validator.validateExpenseInput(addExpense)) {
        try {
-        Expense expense = new Expense(addExpense.getDescription(), addExpense.getAmount(), addExpense.getPayerId());
-        expense = expenseService.createExpense(expense);
-
-        ArrayList<Long> debtorId = addExpense.getDebtorId();
-        for(Integer id  = 0; id < debtorId.size();id++) {
-          ExpenseDebtor expenseDebtor = new ExpenseDebtor(expense.getId(), debtorId.get(id));
-          if(expenseDebtor.getDebtorId() != addExpense.getPayerId()) {
-            expenseDebtService.createExpenseDebt(expenseDebtor);
-            Double debtAmount = (addExpense.getAmount()/debtorId.size());
-            debtService.updateDebtRepository(addExpense.getPayerId(), expenseDebtor.getDebtorId(), debtAmount);
-          }
-        }
-        List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
-        List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
-        User user = userService.getUserById(payerId).get();
+         Boolean created = debtService.updateDebtProcess(addExpense);
+         List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
+         List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
+         User user = userService.getUserById(payerId).get();
         ExpenseDebtResponse expenseDebtResponse = responseGenerator.expenseDebtResponseGenerator(expenses, debts, user);
         return new ResponseEntity<ExpenseDebtResponse>(expenseDebtResponse, HttpStatus.OK);
       } catch (RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception.getCause());
-        return new ResponseEntity<String>("An unexpected error occured!", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<String>("Token Unauthorized", HttpStatus.UNAUTHORIZED);
       }
     } else {
       return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
