@@ -1,12 +1,8 @@
 package com.technogise.expensesharingapp.services;
 
 import com.technogise.expensesharingapp.models.Debt;
-import com.technogise.expensesharingapp.models.Expense;
-import com.technogise.expensesharingapp.models.ExpenseDebtor;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.repositories.DebtRepository;
-import com.technogise.expensesharingapp.repositories.ExpenseDebtorRepository;
-import com.technogise.expensesharingapp.repositories.ExpenseRepository;
 import com.technogise.expensesharingapp.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,13 +70,13 @@ public class UserServiceImplTest {
   void testUpdateDebtRepositoryWhenDebtorIsInDebt() {
 
     Debt debt1 = new Debt(1L, 2L, 10.0);
-//    Debt debt2 = new Debt(2L, 1L, 10.0);
+    Debt debt2 = null;
     Optional<Debt> optionalDebt1 = Optional.of(debt1);
-    Optional<Debt> optionalDebt2 = Optional.of(null);
+    Optional<Debt> optionalDebt2 = Optional.ofNullable(debt2);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
 //    Double newAmount = debtAmount+debt1.getAmount();
-    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1L);
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1);
 
   }
 
@@ -89,13 +84,13 @@ public class UserServiceImplTest {
   void testUpdateDebtRepositoryWhenPayerIsInDebt() {
 
     Debt debt2 = new Debt(1L, 2L, 10.0);
-//    Debt debt2 = new Debt(2L, 1L, 10.0);
-    Optional<Debt> optionalDebt1 = Optional.of(null);
+    Debt debt1 = null;
+    Optional<Debt> optionalDebt1 = Optional.ofNullable(debt1);
     Optional<Debt> optionalDebt2 = Optional.of(debt2);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
 //    Double newAmount = debtAmount+debt1.getAmount();
-    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1L);
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1);
 
   }
 }

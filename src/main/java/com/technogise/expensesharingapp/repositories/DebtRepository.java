@@ -4,7 +4,6 @@ import com.technogise.expensesharingapp.models.Debt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -25,5 +24,5 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
   @Transactional
   @Modifying
   @Query("UPDATE Debt d SET d.creditorId = ?2 , d.debtorId = ?3 , d.amount = ?4 WHERE d.id = ?1")
-  Long updateDebt(Long debtId, Long payerId, Long debtorId, Double amount);
+  Integer updateDebt(Long debtId, Long payerId, Long debtorId, Double amount);
 }
