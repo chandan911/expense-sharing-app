@@ -1,7 +1,11 @@
 package com.technogise.expensesharingapp.services;
 
+import com.technogise.expensesharingapp.models.Debt;
 import com.technogise.expensesharingapp.models.Expense;
+import com.technogise.expensesharingapp.models.ExpenseDebtor;
 import com.technogise.expensesharingapp.models.User;
+import com.technogise.expensesharingapp.repositories.DebtRepository;
+import com.technogise.expensesharingapp.repositories.ExpenseDebtorRepository;
 import com.technogise.expensesharingapp.repositories.ExpenseRepository;
 import com.technogise.expensesharingapp.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -25,14 +33,17 @@ public class UserServiceImplTest {
   @Mock
   private BCryptPasswordEncoder mockPasswordEncoder;
 
+  @Mock
+  private DebtRepository mockDebtRepository;
+
   @InjectMocks
   private UserServiceImpl mockUserService;
 
   @InjectMocks
   private ExpenseServiceImpl mockExpenseService;
 
-  @Mock
-  private ExpenseRepository mockExpenseRepository;
+  @InjectMocks
+  private ExpenseDebtServiceImpl mockExpenseDebtService;
 
   @Test
   void testGetAllUsers() {
@@ -61,12 +72,30 @@ public class UserServiceImplTest {
   }
 
   @Test
-  void testCreateExpense() {
-    Expense originalExpense = new Expense("test", 10.0, 1L);
-    Expense savedExpense = new Expense("test", 10.0, 1L);
-    savedExpense.setId(1L);
-    Mockito.when(mockExpenseRepository.save(savedExpense)).thenReturn(savedExpense);
-    Expense saveExpense = mockExpenseService.createExpense(originalExpense);
-    Assertions.assertEquals(savedExpense, savedExpense);
+  void testUpdateDebtRepositoryWhenDebtorIsInDebt() {
+
+    Debt debt1 = new Debt(1L, 2L, 10.0);
+//    Debt debt2 = new Debt(2L, 1L, 10.0);
+    Optional<Debt> optionalDebt1 = Optional.of(debt1);
+    Optional<Debt> optionalDebt2 = Optional.of(null);
+    Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
+    Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
+//    Double newAmount = debtAmount+debt1.getAmount();
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1L);
+
+  }
+
+  @Test
+  void testUpdateDebtRepositoryWhenPayerIsInDebt() {
+
+    Debt debt2 = new Debt(1L, 2L, 10.0);
+//    Debt debt2 = new Debt(2L, 1L, 10.0);
+    Optional<Debt> optionalDebt1 = Optional.of(null);
+    Optional<Debt> optionalDebt2 = Optional.of(debt2);
+    Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
+    Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
+//    Double newAmount = debtAmount+debt1.getAmount();
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1L);
+
   }
 }
