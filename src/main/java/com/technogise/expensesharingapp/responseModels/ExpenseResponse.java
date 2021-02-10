@@ -2,6 +2,7 @@ package com.technogise.expensesharingapp.responseModels;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class ExpenseResponse implements Serializable {
 
@@ -52,4 +53,17 @@ public class ExpenseResponse implements Serializable {
     this.dateTime = dateTime;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ExpenseResponse)) return false;
+    ExpenseResponse expenseResponse = (ExpenseResponse) o;
+    ExpenseResponse that = (ExpenseResponse) o;
+    return description.equals(that.description) && amount.equals(that.amount) && payerName.equals(that.payerName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(description, amount, payerName, dateTime);
+  }
 }
