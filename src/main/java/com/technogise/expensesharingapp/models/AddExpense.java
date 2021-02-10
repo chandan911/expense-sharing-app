@@ -9,6 +9,9 @@ public class AddExpense {
     private Long payerId;
     private ArrayList<Long> debtorId;
 
+    public AddExpense() {
+    }
+
     public AddExpense(String description, Double amount, Long payerId, ArrayList<Long> debtorId) {
         this.description = description;
         this.amount = amount;
