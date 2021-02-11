@@ -1,6 +1,6 @@
 package com.technogise.expensesharingapp.validators;
 
-import com.technogise.expensesharingapp.models.AddExpense;
+import com.technogise.expensesharingapp.models.NewExpenseRequest;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +53,11 @@ public class ValidatorImpl implements Validator {
   }
 
   @Override
-  public Boolean validateExpenseInput(AddExpense addExpense) {
-    return (validateUserId(addExpense.getPayerId()) &&
-            addExpense.getAmount() > 0 &&
-            addExpense.getDescription().length() > 0 &&
-            addExpense.getDebtorId().size() >= 1 &&
-       validateDebtorList(addExpense.getDebtorId()));
+  public Boolean validateExpenseInput(NewExpenseRequest newExpenseRequest) {
+    return (validateUserId(newExpenseRequest.getPayerId()) &&
+            newExpenseRequest.getAmount() > 0 &&
+            newExpenseRequest.getDescription().length() > 0 &&
+            newExpenseRequest.getDebtorIds().size() >= 1 &&
+       validateDebtorList(newExpenseRequest.getDebtorIds()));
   }
 }

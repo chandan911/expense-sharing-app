@@ -76,7 +76,7 @@ public class UserServiceImplTest {
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
 //    Double newAmount = debtAmount+debt1.getAmount();
-    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1);
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any(),any())).thenReturn(1);
 
   }
 
@@ -90,7 +90,7 @@ public class UserServiceImplTest {
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(1L,2L)).thenReturn(optionalDebt1);
     Mockito.when(mockDebtRepository.getCreditorDebtorPair(2L,1L)).thenReturn(optionalDebt2);
 //    Double newAmount = debtAmount+debt1.getAmount();
-    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any())).thenReturn(1);
+    Mockito.when(mockDebtRepository.updateDebt(any(), any(), any(), any(),any())).thenReturn(1);
 
   }
 }

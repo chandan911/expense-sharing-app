@@ -1,6 +1,6 @@
 package com.technogise.expensesharingapp.validators;
 
-import com.technogise.expensesharingapp.models.AddExpense;
+import com.technogise.expensesharingapp.models.NewExpenseRequest;
 import com.technogise.expensesharingapp.models.User;
 import com.technogise.expensesharingapp.services.UserService;
 import org.junit.jupiter.api.Assertions;
@@ -9,11 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -90,10 +88,10 @@ public class ValidatorImplTest {
     debtorId.add(1L);
     debtorId.add(2L);
     debtorId.add(3L);
-    AddExpense addExpense = new AddExpense("test", 10.0, 1L, debtorId);
+    NewExpenseRequest newExpenseRequest = new NewExpenseRequest("test", 10.0, 1L, debtorId);
     User user = new User("test", "password", "1234567891");
     Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(user));
-    Assertions.assertTrue(validatorImpl.validateExpenseInput(addExpense));
+    Assertions.assertTrue(validatorImpl.validateExpenseInput(newExpenseRequest));
   }
 
   @Test

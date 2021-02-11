@@ -1,7 +1,6 @@
 package com.technogise.expensesharingapp.validators;
 
-import com.technogise.expensesharingapp.models.AddExpense;
-import com.technogise.expensesharingapp.models.Expense;
+import com.technogise.expensesharingapp.models.NewExpenseRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,6 +18,6 @@ public interface Validator {
 
   Boolean validateDebtorList(ArrayList<Long> debtorId);
 
-  Boolean validateExpenseInput(AddExpense addExpense);
+  Boolean validateExpenseInput(NewExpenseRequest newExpenseRequest);
 
 }
