@@ -2,21 +2,21 @@ package com.technogise.expensesharingapp.models;
 
 import java.util.ArrayList;
 
-public class AddExpense {
+public class NewExpenseRequest {
 
     private String description;
     private Double amount;
     private Long payerId;
-    private ArrayList<Long> debtorId;
+    private ArrayList<Long> debtorIds;
 
-    public AddExpense() {
+    public NewExpenseRequest() {
     }
 
-    public AddExpense(String description, Double amount, Long payerId, ArrayList<Long> debtorId) {
+    public NewExpenseRequest(String description, Double amount, Long payerId, ArrayList<Long> debtorIds) {
         this.description = description;
         this.amount = amount;
         this.payerId = payerId;
-        this.debtorId = debtorId;
+        this.debtorIds = debtorIds;
     }
 
     public String getDescription() {
@@ -43,11 +43,11 @@ public class AddExpense {
         this.payerId = payerId;
     }
 
-    public ArrayList<Long> getDebtorId() {
-        return debtorId;
+    public ArrayList<Long> getDebtorIds() {
+        return debtorIds;
     }
 
-    public void setDebtorId(ArrayList<Long> debtorId) {
-        this.debtorId = debtorId;
+    public void setDebtorIds(ArrayList<Long> debtorIds) {
+        this.debtorIds = debtorIds;
     }
 }
