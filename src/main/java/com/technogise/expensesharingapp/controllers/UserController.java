@@ -3,9 +3,7 @@ package com.technogise.expensesharingapp.controllers;
 import com.technogise.expensesharingapp.auths.UserAuthService;
 import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
 import com.technogise.expensesharingapp.models.*;
-import com.technogise.expensesharingapp.repositories.DebtRepository;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
-import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.services.DebtService;
 import com.technogise.expensesharingapp.services.ExpenseDebtService;
 import com.technogise.expensesharingapp.services.ExpenseService;
@@ -20,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,15 +99,15 @@ public class UserController {
 
   @CrossOrigin(origins = "*")
   @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/json")
-  public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody AddExpense addExpense) {
+  public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody NewExpenseRequest newExpenseRequest) {
 
     if(authToken == null) {
       return new ResponseEntity<String>("Token not found!", HttpStatus.BAD_REQUEST);
     }
     Long payerId = userAuthService.validateToken(authToken);
-    if(validator.validateExpenseInput(addExpense)) {
+    if(validator.validateExpenseInput(newExpenseRequest)) {
        try {
-         Boolean created = debtService.updateDebtProcess(addExpense);
+         Boolean created = debtService.updateDebtProcess(newExpenseRequest);
          List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
          List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
          User user = userService.getUserById(payerId).get();

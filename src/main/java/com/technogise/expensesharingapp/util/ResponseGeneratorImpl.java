@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,8 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
 
   @Autowired
   private UserService userService;
+
+  static final String Settlement = "Settlement";
 
   @Override
   public ExpenseResponse expenseResponseGenerator(Expense expense) {
@@ -54,7 +58,7 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
       (List<Expense> expenses, List<Debt> debts, User user, List<User> allUsers) {
 
     List<ExpenseResponse> expenseResponses =
-        expenses.stream().map(expense -> expenseResponseGenerator(expense)).filter(expenseResponse -> !expenseResponse.getDescription().equals("Settlement")).collect( Collectors.toList() );
+        expenses.stream().map(expense -> expenseResponseGenerator(expense)).filter(expenseResponse -> !expenseResponse.getDescription().equals(Settlement)).collect( Collectors.toList() );
     List<DebtResponse> debtResponses = debts.stream().filter(debt -> debt.getAmount()!=0).map(debt -> debtResponseGenerator(debt,user)).collect(Collectors.toList());
     allUsers.remove(user);
     AggregateDataResponse aggregateDataResponse = new AggregateDataResponse(expenseResponses, debtResponses, user, allUsers);

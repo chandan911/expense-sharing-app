@@ -5,13 +5,11 @@ import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.*;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
 import com.technogise.expensesharingapp.responseModels.DebtResponse;
-import com.technogise.expensesharingapp.responseModels.ExpenseDebtResponse;
 import com.technogise.expensesharingapp.responseModels.ExpenseResponse;
 import com.technogise.expensesharingapp.services.DebtService;
 import com.technogise.expensesharingapp.services.ExpenseService;
 import com.technogise.expensesharingapp.util.ResponseGenerator;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,13 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.validators.Validator;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -236,8 +232,8 @@ public class UserControllerTest {
   void testExpensesAndDebtsWithInValidToken() throws Exception {
 
     Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
-    Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
-    Mockito.when(mockDebtService.updateDebtProcess(any(AddExpense.class))).thenThrow(new RuntimeException(""));
+    Mockito.when(mockValidator.validateExpenseInput(any(NewExpenseRequest.class))).thenReturn(true);
+    Mockito.when(mockDebtService.updateDebtProcess(any(NewExpenseRequest.class))).thenThrow(new RuntimeException(""));
 
     final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
     mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
@@ -267,8 +263,8 @@ public class UserControllerTest {
         = new AggregateDataResponse(expenseResponses, debtResponses,null,null);
 
     Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
-    Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
-    Mockito.when(mockDebtService.updateDebtProcess(any(AddExpense.class))).thenReturn(true);
+    Mockito.when(mockValidator.validateExpenseInput(any(NewExpenseRequest.class))).thenReturn(true);
+    Mockito.when(mockDebtService.updateDebtProcess(any(NewExpenseRequest.class))).thenReturn(true);
     Mockito.when(mockExpenseService.getAllExpensesByUserId(any(Long.class))).thenReturn(new ArrayList<>());
     Mockito.when(mockDebtService.getAllDebtsByUserId(any(Long.class))).thenReturn(new ArrayList<Debt>());
     Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(new User()));
