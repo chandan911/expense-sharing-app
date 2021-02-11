@@ -114,8 +114,9 @@ public class UserController {
          List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
          List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
          User user = userService.getUserById(payerId).get();
-        ExpenseDebtResponse expenseDebtResponse = responseGenerator.expenseDebtResponseGenerator(expenses, debts, user);
-        return new ResponseEntity<ExpenseDebtResponse>(expenseDebtResponse, HttpStatus.OK);
+         List<User> allUsers = userService.getAllUsers();
+        AggregateDataResponse expenseDebtResponse = responseGenerator.aggregateResponseGenerator(expenses, debts, user,allUsers);
+        return new ResponseEntity<AggregateDataResponse>(expenseDebtResponse, HttpStatus.OK);
       } catch (RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception.getCause());
         return new ResponseEntity<String>("Token Unauthorized", HttpStatus.UNAUTHORIZED);
