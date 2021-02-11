@@ -26,7 +26,7 @@ public class DebtServiceImpl implements DebtService {
 
   @Override
   public List<Debt> getAllDebtsByUserId(Long userId) {
-    return debtRepository.getAllDebtsByUserId(userId);
+    return debtRepository.findAllDebtsByUserId(userId);
   }
 
   @Override

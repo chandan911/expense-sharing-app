@@ -1,6 +1,5 @@
 package com.technogise.expensesharingapp.auths;
 
-import com.technogise.expensesharingapp.exceptions.AuthFailedException;
 import com.technogise.expensesharingapp.models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,5 +21,4 @@ class JwtTokenUtilTest {
     String authToken = jwtTokenUtil.generateAuthTokenFor(user);
     Assertions.assertNotNull(authToken);
   }
-
 }

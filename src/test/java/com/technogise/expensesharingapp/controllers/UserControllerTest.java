@@ -227,9 +227,9 @@ public class UserControllerTest {
     Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenThrow(new AuthFailedException());
 
     mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
-            .header("authToken", "dummyToken")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(400));
+        .header("authToken", "dummyToken")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(400));
   }
 
   @Test
@@ -241,10 +241,10 @@ public class UserControllerTest {
 
     final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
     mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
-            .header("authToken", "dummyToken")
-            .content(useRequestBody)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(401));
+        .header("authToken", "dummyToken")
+        .content(useRequestBody)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(401));
   }
 
   @Test
@@ -264,7 +264,7 @@ public class UserControllerTest {
 
     final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
     AggregateDataResponse expectedExpenseDebtResponse
-            = new AggregateDataResponse(expenseResponses, debtResponses,null,null);
+        = new AggregateDataResponse(expenseResponses, debtResponses,null,null);
 
     Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
     Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
@@ -273,19 +273,19 @@ public class UserControllerTest {
     Mockito.when(mockDebtService.getAllDebtsByUserId(any(Long.class))).thenReturn(new ArrayList<Debt>());
     Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(new User()));
     Mockito.when(mockResponseGenerator.aggregateResponseGenerator(any(), any(), any(),any()))
-            .thenReturn(expectedExpenseDebtResponse);
+        .thenReturn(expectedExpenseDebtResponse);
 
 
     mockMvc.perform(MockMvcRequestBuilders.post("/expenses")
-            .header("authToken", "dummyToken")
-            .content(useRequestBody)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(200))
-            .andExpect(jsonPath("$.expenses.[0].payerName", is(expenseResponse1.getPayerName())))
-            .andExpect(jsonPath("$.expenses.[1].payerName", is(expenseResponse2.getPayerName())))
-            .andExpect(jsonPath("$.expenses.[2].payerName", is(expenseResponse3.getPayerName())))
-            .andExpect(jsonPath("$.debts.[0].creditor", is(debtResponse1.getCreditor())))
-            .andExpect(jsonPath("$.debts.[1].creditor", is(debtResponse2.getCreditor())))
-            .andExpect(jsonPath("$.debts.[2].creditor", is(debtResponse3.getCreditor())));
+        .header("authToken", "dummyToken")
+        .content(useRequestBody)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(200))
+        .andExpect(jsonPath("$.expenses.[0].payerName", is(expenseResponse1.getPayerName())))
+        .andExpect(jsonPath("$.expenses.[1].payerName", is(expenseResponse2.getPayerName())))
+        .andExpect(jsonPath("$.expenses.[2].payerName", is(expenseResponse3.getPayerName())))
+        .andExpect(jsonPath("$.debts.[0].creditor", is(debtResponse1.getCreditor())))
+        .andExpect(jsonPath("$.debts.[1].creditor", is(debtResponse2.getCreditor())))
+        .andExpect(jsonPath("$.debts.[2].creditor", is(debtResponse3.getCreditor())));
   }
 }
