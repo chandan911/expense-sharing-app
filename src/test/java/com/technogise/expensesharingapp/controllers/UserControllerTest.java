@@ -263,8 +263,8 @@ public class UserControllerTest {
 
 
     final String useRequestBody = "{\"description\":\"test\",\"amount\":10.0, \"payerId\":1,\"debtorId\":[1,2,3]}";
-    ExpenseDebtResponse expectedExpenseDebtResponse
-            = new ExpenseDebtResponse(expenseResponses, debtResponses);
+    AggregateDataResponse expectedExpenseDebtResponse
+            = new AggregateDataResponse(expenseResponses, debtResponses,null,null);
 
     Mockito.when(mockUserAuthService.validateToken(any(String.class))).thenReturn(1L);
     Mockito.when(mockValidator.validateExpenseInput(any(AddExpense.class))).thenReturn(true);
@@ -272,7 +272,7 @@ public class UserControllerTest {
     Mockito.when(mockExpenseService.getAllExpensesByUserId(any(Long.class))).thenReturn(new ArrayList<>());
     Mockito.when(mockDebtService.getAllDebtsByUserId(any(Long.class))).thenReturn(new ArrayList<Debt>());
     Mockito.when(mockUserService.getUserById(any(Long.class))).thenReturn(Optional.of(new User()));
-    Mockito.when(mockResponseGenerator.expenseDebtResponseGenerator(any(), any(), any()))
+    Mockito.when(mockResponseGenerator.aggregateResponseGenerator(any(), any(), any(),any()))
             .thenReturn(expectedExpenseDebtResponse);
 
 
