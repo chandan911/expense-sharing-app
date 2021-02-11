@@ -22,7 +22,7 @@ public interface DebtRepository extends JpaRepository<Debt, Long> {
   Optional<Debt> getCreditorDebtorPair(Long payerId, Long debtorId);
 
   @Transactional
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("UPDATE Debt d SET d.creditorId = ?2 , d.debtorId = ?3 , d.amount = ?4 WHERE d.id = ?1")
   Integer updateDebt(Long debtId, Long payerId, Long debtorId, Double amount);
 }
