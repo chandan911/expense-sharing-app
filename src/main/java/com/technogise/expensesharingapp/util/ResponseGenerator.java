@@ -16,9 +16,8 @@ public interface ResponseGenerator {
 
   ExpenseResponse expenseResponseGenerator(Expense expense);
 
-  DebtResponse debtResponseGenerator(Debt debt);
+  DebtResponse debtResponseGenerator(Debt debt,User user);
 
   AggregateDataResponse aggregateResponseGenerator(List<Expense> expenses, List<Debt> debts, User user, List<User> allUsers);
 
-  ExpenseDebtResponse expenseDebtResponseGenerator(List<Expense> expenses, List<Debt> debts, User user);
 }

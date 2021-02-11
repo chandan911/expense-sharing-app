@@ -31,12 +31,20 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
   }
 
   @Override
-  public DebtResponse debtResponseGenerator(Debt debt) {
+  public DebtResponse debtResponseGenerator(Debt debt,User user) {
     DebtResponse debtResponse = new DebtResponse();
     debtResponse.setId(debt.getId());
     debtResponse.setAmount(debt.getAmount());
-    debtResponse.setCreditor(userService.getUserById(debt.getCreditorId()).get().getName());
-    debtResponse.setDebtor(userService.getUserById(debt.getDebtorId()).get().getName());
+    if(user.getPhoneNumber() == userService.getUserById(debt.getCreditorId()).get().getPhoneNumber()) {
+      debtResponse.setCreditor(null);
+    }else {
+      debtResponse.setCreditor(userService.getUserById(debt.getCreditorId()).get().getName());
+    }
+    if(user.getPhoneNumber() == userService.getUserById(debt.getDebtorId()).get().getPhoneNumber()) {
+      debtResponse.setDebtor(null);
+    }else {
+      debtResponse.setDebtor(userService.getUserById(debt.getDebtorId()).get().getName());
+    }
     return debtResponse;
   }
 
@@ -44,31 +52,19 @@ public class ResponseGeneratorImpl implements ResponseGenerator {
   public AggregateDataResponse aggregateResponseGenerator
       (List<Expense> expenses, List<Debt> debts, User user, List<User> allUsers) {
     List<ExpenseResponse> expenseResponses = new ArrayList<ExpenseResponse>();
-    for (int index = 0; index < expenses.size(); index++)
-      expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
+    for (int index = 0; index < expenses.size(); index++) {
+      if (!expenses.get(index).getDescription().equals("Settlement")) {
+        expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
+      }
+    }
     List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
     for (int index = 0; index < debts.size(); index++) {
-      debtResponses.add(debtResponseGenerator(debts.get(index)));
-      if (debtResponses.get(index).getCreditor() == user.getName()) debtResponses.get(index).setCreditor(null);
-      if (debtResponses.get(index).getDebtor() == user.getName()) debtResponses.get(index).setDebtor(null);
+      if (debts.get(index).getAmount() != 0) {
+        debtResponses.add(debtResponseGenerator(debts.get(index),user));
+      }
     }
     allUsers.remove(user);
     AggregateDataResponse aggregateDataResponse = new AggregateDataResponse(expenseResponses, debtResponses, user, allUsers);
     return aggregateDataResponse;
-  }
-
-  @Override
-  public ExpenseDebtResponse expenseDebtResponseGenerator(List<Expense> expenses, List<Debt> debts, User user) {
-    List<ExpenseResponse> expenseResponses = new ArrayList  <ExpenseResponse>();
-    for (int index = 0; index < expenses.size(); index++)
-      expenseResponses.add(expenseResponseGenerator(expenses.get(index)));
-    List<DebtResponse> debtResponses = new ArrayList<DebtResponse>();
-    for (int index = 0; index < debts.size(); index++) {
-      debtResponses.add(debtResponseGenerator(debts.get(index)));
-      if (debtResponses.get(index).getCreditor() == user.getName()) debtResponses.get(index).setCreditor(null);
-      if (debtResponses.get(index).getDebtor() == user.getName()) debtResponses.get(index).setDebtor(null);
-    }
-    ExpenseDebtResponse expenseDebtResponse = new ExpenseDebtResponse(expenseResponses, debtResponses);
-    return expenseDebtResponse;
   }
 }
