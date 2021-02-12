@@ -10,4 +10,5 @@ public interface ExpenseService {
 
   List<Expense> getAllExpensesByUserId(Long userId);
 
+  Expense createExpense(Expense expense);
 }

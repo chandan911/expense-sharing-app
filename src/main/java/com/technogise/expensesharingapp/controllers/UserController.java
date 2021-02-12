@@ -5,6 +5,7 @@ import com.technogise.expensesharingapp.exceptions.ResourceNotFoundException;
 import com.technogise.expensesharingapp.models.*;
 import com.technogise.expensesharingapp.responseModels.AggregateDataResponse;
 import com.technogise.expensesharingapp.services.DebtService;
+import com.technogise.expensesharingapp.services.ExpenseDebtService;
 import com.technogise.expensesharingapp.services.ExpenseService;
 import com.technogise.expensesharingapp.services.UserService;
 import com.technogise.expensesharingapp.util.ResponseGenerator;
@@ -42,6 +43,10 @@ public class UserController {
 
   @Autowired
   private ResponseGenerator responseGenerator;
+
+  @Autowired
+  private ExpenseDebtService expenseDebtService;
+
 
   @CrossOrigin(origins = "*")
   @GetMapping("/users")
@@ -90,5 +95,31 @@ public class UserController {
     List<User> allUsers = userService.getAllUsers();
     AggregateDataResponse aggregateDataResponse = responseGenerator.aggregateResponseGenerator(expenses, debts, user, allUsers);
     return new ResponseEntity<AggregateDataResponse>(aggregateDataResponse, HttpStatus.OK);
+  }
+
+  @CrossOrigin(origins = "*")
+  @PostMapping(path = "/expenses", consumes = "application/json", produces ="application/json")
+  public ResponseEntity<?> expenses(@RequestHeader("authToken") String authToken, @RequestBody NewExpenseRequest newExpenseRequest) {
+
+    if(authToken == null) {
+      return new ResponseEntity<String>("Token not found!", HttpStatus.BAD_REQUEST);
+    }
+    Long payerId = userAuthService.validateToken(authToken);
+    if(validator.validateExpenseInput(newExpenseRequest)) {
+       try {
+         Boolean created = debtService.updateDebtProcess(newExpenseRequest);
+         List<Expense> expenses = expenseService.getAllExpensesByUserId(payerId);
+         List<Debt> debts = debtService.getAllDebtsByUserId(payerId);
+         User user = userService.getUserById(payerId).get();
+         List<User> allUsers = userService.getAllUsers();
+        AggregateDataResponse expenseDebtResponse = responseGenerator.aggregateResponseGenerator(expenses, debts, user,allUsers);
+        return new ResponseEntity<AggregateDataResponse>(expenseDebtResponse, HttpStatus.OK);
+      } catch (RuntimeException exception) {
+        LOGGER.error(exception.getMessage(), exception.getCause());
+        return new ResponseEntity<String>("Token Unauthorized", HttpStatus.UNAUTHORIZED);
+      }
+    } else {
+      return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
+    }
   }
 }

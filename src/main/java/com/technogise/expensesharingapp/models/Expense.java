@@ -3,6 +3,7 @@ package com.technogise.expensesharingapp.models;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "expenses")
@@ -49,4 +50,23 @@ public class Expense extends BasePersistenceModel {
   public void setPayerId(Long payerId) {
     this.payerId = payerId;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Expense)) return false;
+    Expense expense = (Expense) o;
+    return  getPayerId().equals(expense.getPayerId()) &&
+            getAmount().equals(expense.getAmount()) &&
+            getDescription().equals(expense.getDescription()) &&
+            getId().equals(expense.getId()) &&
+            getCreatedAt().equals(expense.getCreatedAt()) &&
+            getUpdatedAt().equals(expense.getUpdatedAt());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getPayerId(), getAmount(), getDescription(), getId(), getCreatedAt(), getUpdatedAt());
+  }
+
 }
