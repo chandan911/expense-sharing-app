@@ -116,7 +116,7 @@ public class UserController {
         return new ResponseEntity<AggregateDataResponse>(expenseDebtResponse, HttpStatus.OK);
       } catch (RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception.getCause());
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<String>("Token Unauthorized", HttpStatus.UNAUTHORIZED);
       }
     } else {
       return new ResponseEntity<String>("Invalid expense data", HttpStatus.BAD_REQUEST);
